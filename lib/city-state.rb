@@ -5,12 +5,7 @@ module CS
   MAXMIND_ZIPPED_URL = "http://geolite.maxmind.com/download/geoip/database/GeoLite2-City-CSV.zip"
   FILES_FOLDER = File.expand_path('../db', __FILE__)
   MAXMIND_DB_FN = File.join(FILES_FOLDER, "GeoLite2-City-Locations-en.csv")
-
-  if defined?(I18n) and I18.locale != "en" and File.exists?(File.join(FILES_FOLDER, "countries_{I18.locale}.yml"))
-    COUNTRIES_FN = File.join(FILES_FOLDER, "countries_{I18.locale}.yml")
-  else
-    COUNTRIES_FN = File.join(FILES_FOLDER, "countries.yml")
-  end
+  COUNTRIES_FN = File.join(FILES_FOLDER, "countries_es.yml")
 
   @countries, @states, @cities = [{}, {}, {}]
   @current_country = nil # :US, :BR, :GB, :JP, ...
@@ -189,8 +184,7 @@ module CS
       # countries.yml exists, just read it
       @countries = YAML::load_file(COUNTRIES_FN).symbolize_keys
     end
-
-    Hash[@countries.sort{ |a, b| a[1] <=> b[1] }]
+    @countries
   end
 
   # get is a method to simplify the use of city-state
