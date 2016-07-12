@@ -5,7 +5,12 @@ module CS
   MAXMIND_ZIPPED_URL = "http://geolite.maxmind.com/download/geoip/database/GeoLite2-City-CSV.zip"
   FILES_FOLDER = File.expand_path('../db', __FILE__)
   MAXMIND_DB_FN = File.join(FILES_FOLDER, "GeoLite2-City-Locations-en.csv")
-  COUNTRIES_FN = File.join(FILES_FOLDER, "countries.yml")
+
+  if defined?(I18n) and I18.locale != "en" and File.exists?(File.join(FILES_FOLDER, "countries_{I18.locale}.yml"))
+    COUNTRIES_FN = File.join(FILES_FOLDER, "countries_{I18.locale}.yml")
+  else
+    COUNTRIES_FN = File.join(FILES_FOLDER, "countries.yml")
+  end
 
   @countries, @states, @cities = [{}, {}, {}]
   @current_country = nil # :US, :BR, :GB, :JP, ...
@@ -113,7 +118,7 @@ module CS
     # we don't have used this method yet: discover by the file extension
     fn = Dir[File.join(FILES_FOLDER, "cities.*")].last
     @current_country = fn.blank? ? nil : fn.split(".").last
-    
+
     # there's no files: we'll install and use :US
     if @current_country.blank?
       @current_country = :US
@@ -121,7 +126,7 @@ module CS
 
     # we find a file: normalize the extension to something like :US
     else
-      @current_country = @current_country.to_s.upcase.to_sym    
+      @current_country = @current_country.to_s.upcase.to_sym
     end
 
     @current_country
@@ -184,7 +189,8 @@ module CS
       # countries.yml exists, just read it
       @countries = YAML::load_file(COUNTRIES_FN).symbolize_keys
     end
-    @countries
+
+    Hash[@countries.sort{ |a, b| a[1] <=> b[1] }]
   end
 
   # get is a method to simplify the use of city-state
